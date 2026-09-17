@@ -1,15 +1,28 @@
 import React from 'react'
-import { Link, createBrowserRouter, Outlet } from 'react-router'
+import { Link, createBrowserRouter, Outlet, useLocation } from 'react-router'
+import { ArrowLeftIcon, SignOutIcon, SquaresFourIcon } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
+import {
+  Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent,
+  SidebarGroupLabel, SidebarHeader, SidebarInset, SidebarMenu,
+  SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarRail, SidebarTrigger,
+} from '@/components/ui/sidebar'
 import Landing from './Landing'
 import SignIn from './SignIn'
 import SignUp from './SignUp'
+import Dashboard from './Dashboard'
+import { TooltipProvider } from '@/components/ui/tooltip'
 
 const navItems = [
   { label: 'Home', href: '#hero' },
   { label: 'Tentang', href: '#about' },
   { label: 'Testimoni', href: '#testimoni' },
   { label: 'FAQ', href: '#faq' },
+]
+
+const adminNav = [
+  { title: 'Dashboard', href: '/admin', icon: SquaresFourIcon },
 ]
 
 export function Theme() {
@@ -64,6 +77,95 @@ export function Theme() {
   )
 }
 
+function AdminSidebar() {
+  const { pathname } = useLocation()
+
+  return (
+    <TooltipProvider>
+      <Sidebar collapsible="icon">
+        <SidebarHeader>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton size="lg" asChild>
+                <Link to="/admin">
+                  <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary font-bold text-primary-foreground">
+                    T
+                  </div>
+                  <div className="grid leading-tight">
+                    <span className="truncate font-semibold">Tsaqafee</span>
+                    <span className="truncate text-xs text-muted-foreground">Panel Admin</span>
+                  </div>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarHeader>
+
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupLabel>Menu</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {adminNav.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathname === item.href}
+                      tooltip={item.title}
+                    >
+                      <Link to={item.href}>
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
+
+        <SidebarFooter>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild tooltip="Kembali ke Toko">
+                <Link to="/">
+                  <ArrowLeftIcon />
+                  <span>Kembali ke Toko</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarFooter>
+
+        <SidebarRail />
+      </Sidebar>
+    </TooltipProvider>
+  )
+}
+
+export function AdminTheme() {
+  return (
+    <SidebarProvider>
+      <AdminSidebar />
+      <SidebarInset>
+        <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+          <SidebarTrigger className="-ml-1" />
+          <Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
+          <h2 className="text-sm font-semibold">Dashboard</h2>
+          <Button variant="ghost" size="sm" className="ml-auto gap-2">
+            <SignOutIcon size={16} />
+            Keluar
+          </Button>
+        </header>
+        <main className="flex-1 p-4 md:p-6">
+          <Outlet />
+        </main>
+      </SidebarInset>
+    </SidebarProvider>
+  )
+}
+
 export function Auth() {
   return (
     <div className="grid min-h-dvh lg:grid-cols-2">
@@ -102,6 +204,13 @@ export const routes = createBrowserRouter([
     children: [
       { path: 'sign-in', element: <SignIn /> },
       { path: 'sign-up', element: <SignUp /> },
+    ],
+  },
+  {
+    path: '/admin',
+    element: <AdminTheme />,
+    children: [
+      { index: true, element: <Dashboard /> },
     ],
   },
 ])
